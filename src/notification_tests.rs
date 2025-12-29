@@ -31,4 +31,17 @@ mod tests {
         assert_eq!(app.notification_queue.len(), 1);
         assert_eq!(app.notification_queue[0], notif2);
     }
+
+    #[test]
+    fn test_handle_backend_error_event() {
+        use crate::backend::BackendEvent;
+        let (tx, _) = mpsc::channel::<BackendCommand>();
+        let mut app = App::new(tx);
+
+        app.update(crate::action::Action::BackendResponse(BackendEvent::Error("Test Error".to_string()))).unwrap();
+
+        assert_eq!(app.notification_queue.len(), 1);
+        assert_eq!(app.notification_queue[0].message, "Test Error");
+        assert_eq!(app.notification_queue[0].kind, crate::app::NotificationKind::Error);
+    }
 }

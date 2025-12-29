@@ -294,7 +294,7 @@ impl App {
             }
             BackendEvent::Error(err) => {
                 self.is_loading = false;
-                self.open_popup("Error", &err, None);
+                self.push_notification(Notification::error(err));
             }
             _ => {}
         }
