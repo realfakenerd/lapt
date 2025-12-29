@@ -114,6 +114,13 @@ async fn main() -> Result<()> {
 }
 
 fn map_key_to_action(key: KeyEvent, app: &App) -> Option<Action> {
+    if !app.notification_queue.is_empty() {
+        return match key.code {
+            KeyCode::Enter | KeyCode::Esc => Some(Action::DismissNotification),
+            _ => None,
+        };
+    }
+
     if app.popup.visible {
         return match key.code {
             KeyCode::Char('y') | KeyCode::Enter => Some(Action::ConfirmAction),

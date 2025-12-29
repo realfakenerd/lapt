@@ -236,6 +236,9 @@ impl App {
                 self.popup.visible = false;
                 self.popup.command_to_confirm = None;
             }
+            Action::DismissNotification => {
+                self.dismiss_notification();
+            }
 
             Action::BackendResponse(event) => self.handle_backend_event(event),
 

@@ -22,6 +22,7 @@ pub enum Action {
     // --- Comandos de Negócio (Disparados pelo usuário) ---
     ConfirmAction, // Enter/y no popup
     CancelAction,  // Esc/n no popup
+    DismissNotification,
     RequestUninstall,
     RequestReinstall,
     RequestUpgradeSystem,

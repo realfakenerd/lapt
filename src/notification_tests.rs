@@ -44,4 +44,16 @@ mod tests {
         assert_eq!(app.notification_queue[0].message, "Test Error");
         assert_eq!(app.notification_queue[0].kind, crate::app::NotificationKind::Error);
     }
+
+    #[test]
+    fn test_action_dismiss_notification() {
+        let (tx, _) = mpsc::channel::<BackendCommand>();
+        let mut app = App::new(tx);
+        
+        app.push_notification(Notification::info("Test".to_string()));
+        assert_eq!(app.notification_queue.len(), 1);
+
+        app.update(crate::action::Action::DismissNotification).unwrap();
+        assert_eq!(app.notification_queue.len(), 0);
+    }
 }
