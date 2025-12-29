@@ -8,6 +8,7 @@ mod pkg;
 mod pkg_tests;
 mod tab_tests;
 mod ui;
+mod ui_tab_tests;
 mod ui_details;
 mod ui_error_tests;
 mod ui_tests;
