@@ -24,13 +24,13 @@ Focus: Implementing robust parsing for standard APT list and search commands.
 ## Phase 3: System Altering Operations & Confirmation
 Focus: Implementing package management commands and the hybrid confirmation logic.
 
-- [ ] Task: Implement `install` and `remove` command wrappers.
+- [~] Task: Implement `install` and `remove` command wrappers.
     - [ ] Sub-task: Write Tests (Mock command execution and verify flags).
     - [ ] Sub-task: Implement Feature (Execute `apt-get install/remove -y` asynchronously).
-- [ ] Task: Implement the Hybrid Confirmation logic in `App::update`.
+- [~] Task: Implement the Hybrid Confirmation logic in `App::update`.
     - [ ] Sub-task: Write Tests (Ensure popups only appear for destructive actions).
     - [ ] Sub-task: Implement Feature (Toggle between automatic and popup-required actions).
-- [ ] Task: Implement `update` and `full-upgrade` maintenance commands.
+- [~] Task: Implement `update` and `full-upgrade` maintenance commands.
     - [ ] Sub-task: Write Tests (Verify command strings).
     - [ ] Sub-task: Implement Feature (Add system maintenance to backend).
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: System Altering Operations & Confirmation' (Protocol in workflow.md)
@@ -38,10 +38,10 @@ Focus: Implementing package management commands and the hybrid confirmation logi
 ## Phase 4: UX Polish & Progress Indicators
 Focus: Visualizing background tasks and cleaning up the interface.
 
-- [ ] Task: Add a persistent "Background Task" status zone in `ui.rs`.
+- [~] Task: Add a persistent "Background Task" status zone in `ui.rs`.
     - [ ] Sub-task: Write Tests (Verify zone renders when a task is active).
     - [ ] Sub-task: Implement Feature (Add a status indicator at the bottom/top of the TUI).
-- [ ] Task: Final cleanup and error reporting refinement.
+- [x] Task: Final cleanup and error reporting refinement. [a62e2be]
     - [ ] Sub-task: Write Tests (Ensure failed APT commands trigger the notification queue).
     - [ ] Sub-task: Implement Feature (Map command exit codes to UI notifications).
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: UX Polish & Progress Indicators' (Protocol in workflow.md)
