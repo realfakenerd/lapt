@@ -17,7 +17,7 @@ Focus: Visualizing the new metadata in the application's side panel.
 - [x] Task: Create `ui::components::details.rs` (or similar) refactoring the details rendering logic. [fbaeb19]
     - [ ] Sub-task: Write Tests (Verify component renders text correctly based on input `Package`).
     - [ ] Sub-task: Implement Feature (Design the layout using Ratatui widgets).
-- [ ] Task: Integrate new details component into `ui.rs`.
+- [x] Task: Integrate new details component into `ui.rs`. [d398e62]
     - [ ] Sub-task: Write Tests (Ensure main UI draw loop calls the new component).
     - [ ] Sub-task: Implement Feature (Replace placeholder/old logic with new component).
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI - Detailed Panel Implementation' (Protocol in workflow.md)
