@@ -27,7 +27,7 @@ Focus: Implementing a robust, user-friendly error handling mechanism.
 - [x] Task: Define `Notification` struct and add `notification_queue` to `App` state in `app.rs`. [0bd8a10]
     - [ ] Sub-task: Write Tests (Test pushing/popping notifications from the queue).
     - [ ] Sub-task: Implement Feature (Add struct and state field).
-- [ ] Task: Create `ErrorPopup` component in `ui.rs`.
+- [x] Task: Create `ErrorPopup` component in `ui.rs`. [9c983b3]
     - [ ] Sub-task: Write Tests (Verify popup dimensions and text rendering).
     - [ ] Sub-task: Implement Feature (Implement the rendering logic for the popup).
 - [ ] Task: Update `App::handle_backend_event` to route `BackendEvent::Error` to the notification queue.
