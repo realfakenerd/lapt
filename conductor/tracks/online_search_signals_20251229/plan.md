@@ -11,7 +11,7 @@ Focus: Adding the "Online" tab infrastructure and ensuring search results are st
     - [ ] Sub-task: Implement Feature (Modify `render_header` and `render_content` in `ui.rs`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Tab Expansion & State Persistence' (Protocol in workflow.md)
 
-## Phase 2: Manual Online Search Integration
+## Phase 2: Manual Online Search Integration [checkpoint: e0e810f]
 Focus: Implementing the explicit search trigger and result handling.
 
 - [~] Task: Modify search interaction to support manual triggers.
