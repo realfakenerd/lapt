@@ -18,8 +18,7 @@ Focus: Visualizing the new metadata in the application's side panel.
     - [ ] Sub-task: Write Tests (Verify component renders text correctly based on input `Package`).
     - [ ] Sub-task: Implement Feature (Design the layout using Ratatui widgets).
 - [x] Task: Integrate new details component into `ui.rs`. [d398e62]
-    - [ ] Sub-task: Write Tests (Ensure main UI draw loop calls the new component).
-    - [ ] Sub-task: Implement Feature (Replace placeholder/old logic with new component).
+- [x] Task: Implement `apt show` parsing logic to fetch missing details (License, Size, URL). [74f4cf2]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI - Detailed Panel Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Error Notification System
