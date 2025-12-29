@@ -21,6 +21,7 @@ pub enum BackendCommand {
     ListUpgradable,
     #[allow(dead_code)]
     Search(String),
+    GetDetails(String),
     Remove(String),
     Reinstall(String),
     UpgradeSystem,
@@ -30,6 +31,7 @@ pub enum BackendCommand {
 pub enum BackendEvent {
     InstalledPackagesFound(Vec<Package>),
     UpgradablePackagesFound(Vec<Package>),
+    PackageDetailsFound(Package),
     TaskStarted(String),
     TaskFinished(BackendCommand),
     TaskProgress(u32),
@@ -64,6 +66,7 @@ impl PackageKitBackend {
         // Listeners
         let mut progress_stream = transaction.receive_signal("Percentage").await?;
         let mut package_stream = transaction.receive_signal("Package").await?;
+        let mut details_stream = transaction.receive_signal("Details").await?;
         let mut error_stream = transaction.receive_signal("ErrorCode").await?;
         let mut finished_stream = transaction.receive_signal("Finished").await?;
 
@@ -93,6 +96,9 @@ impl PackageKitBackend {
                 // Na busca, queremos ver o que NÃO está instalado também
                 let filter = FILTER_NOT_INSTALLED | FILTER_ARCH | FILTER_NOT_SOURCE;
                 transaction.search_names(filter, &[&query]).await?;
+            }
+            BackendCommand::GetDetails(pkg_id) => {
+                transaction.get_details(&[&pkg_id]).await?;
             }
             BackendCommand::Remove(pkg_id) => {
                 tx.send(BackendEvent::TaskStarted("Removing...".into()))?;
@@ -134,6 +140,14 @@ impl PackageKitBackend {
                             let pkg = Package::from_packagekit(&id, status_str, &summary);
                             packages.push(pkg);
                         }
+                    }
+                }
+
+                Some(msg) = details_stream.next() => {
+                    if let Ok((id, license, _group, description, url, size)) = msg.body::<(String, String, u32, String, String, u64)>() {
+                        let mut pkg = Package::from_packagekit(&id, "", "");
+                        pkg.update_details(&description, &license, size, &url);
+                        tx.send(BackendEvent::PackageDetailsFound(pkg))?;
                     }
                 }
 

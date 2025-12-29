@@ -222,6 +222,24 @@ impl App {
                     self.perform_search();
                 }
             }
+            BackendEvent::PackageDetailsFound(details) => {
+                // Update in all lists
+                for p in self.installed_packages.iter_mut() {
+                    if p.id == details.id {
+                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                    }
+                }
+                for p in self.upgradable_packages.iter_mut() {
+                    if p.id == details.id {
+                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                    }
+                }
+                for p in self.filtered_packages.iter_mut() {
+                    if p.id == details.id {
+                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                    }
+                }
+            }
             BackendEvent::TaskFinished(cmd) => {
                 self.is_loading = false;
                 match cmd {
@@ -262,6 +280,7 @@ impl App {
             self.filtered_packages = matches.into_iter().map(|(p, _)| p.clone()).collect();
         }
         self.list_state.select(Some(0));
+        self.request_details_for_selected();
     }
 
     fn next_item(&mut self) {
@@ -279,6 +298,7 @@ impl App {
             None => 0,
         };
         self.list_state.select(Some(i));
+        self.request_details_for_selected();
     }
 
     fn prev_item(&mut self) {
@@ -296,6 +316,13 @@ impl App {
             None => 0,
         };
         self.list_state.select(Some(i));
+        self.request_details_for_selected();
+    }
+
+    fn request_details_for_selected(&mut self) {
+        if let Some(pkg) = self.get_selected_pkg() {
+            let _ = self.tx_cmd.send(BackendCommand::GetDetails(pkg.id.clone()));
+        }
     }
 
     fn get_selected_pkg(&self) -> Option<&Package> {

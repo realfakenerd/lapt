@@ -36,4 +36,17 @@ impl Package {
             url: String::new(),
         }
     }
+
+    pub fn update_details(
+        &mut self,
+        description: &str,
+        license: &str,
+        size: u64,
+        url: &str,
+    ) {
+        self.description = description.to_string();
+        self.license = license.to_string();
+        self.size = size;
+        self.url = url.to_string();
+    }
 }

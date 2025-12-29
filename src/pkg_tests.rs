@@ -39,4 +39,25 @@ mod tests {
         assert_eq!(pkg.size, 0);
         assert_eq!(pkg.url, "");
     }
+
+    #[test]
+    fn test_update_details() {
+        let mut pkg = Package::from_packagekit(
+            "vim;8.2.1234;x86_64;updates",
+            "installed",
+            "Vi IMproved"
+        );
+
+        pkg.update_details(
+            "Full description here",
+            "Vim License",
+            9999,
+            "https://vim.org"
+        );
+
+        assert_eq!(pkg.description, "Full description here");
+        assert_eq!(pkg.license, "Vim License");
+        assert_eq!(pkg.size, 9999);
+        assert_eq!(pkg.url, "https://vim.org");
+    }
 }
