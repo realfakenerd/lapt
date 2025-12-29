@@ -1,6 +1,6 @@
 # Plan: Enhance Package Details and Error Resilience
 
-## Phase 1: Backend & Data Structure Updates
+## Phase 1: Backend & Data Structure Updates [checkpoint: 516512a]
 Focus: Extending the data model to support richer package metadata.
 
 - [x] Task: Update `Package` struct in `pkg.rs` to include `summary`, `description`, `license`, `size`, `url`. [3d484a3]
