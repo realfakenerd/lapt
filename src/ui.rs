@@ -120,24 +120,8 @@ fn render_content(frame: &mut Frame, area: Rect, app: &mut App) {
         .list_state
         .selected()
         .and_then(|i| app.filtered_packages.get(i));
-    let text = if let Some(pkg) = selected {
-        format!(
-            "Name: {}\nVer: {}\nStatus: {}\n\n{}",
-            pkg.name, pkg.version, pkg.status, pkg.summary
-        )
-    } else {
-        "No selection".into()
-    };
-
-    let p = Paragraph::new(text)
-        .block(
-            Block::bordered()
-                .title(" Details ")
-                .border_style(Style::default().fg(tailwind::SLATE.c700))
-                .border_set(symbols::border::ROUNDED),
-        )
-        .wrap(Wrap { trim: true });
-    frame.render_widget(p, detail_area);
+    
+    crate::ui_details::render_details(frame, detail_area, selected);
 }
 
 fn render_footer(frame: &mut Frame, area: Rect, _app: &App) {
