@@ -1,6 +1,6 @@
 # Plan: Online Search and Real-time Task Feedback
 
-## Phase 1: Tab Expansion & State Persistence
+## Phase 1: Tab Expansion & State Persistence [checkpoint: 8e7a9d1]
 Focus: Adding the "Online" tab infrastructure and ensuring search results are stored correctly.
 
 - [x] Task: Update `SelectedTab` and `App` state to support the "Online" tab. [f8c986e]
