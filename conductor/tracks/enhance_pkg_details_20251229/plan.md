@@ -21,7 +21,7 @@ Focus: Visualizing the new metadata in the application's side panel.
 - [x] Task: Implement `apt show` parsing logic to fetch missing details (License, Size, URL). [74f4cf2]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI - Detailed Panel Implementation' (Protocol in workflow.md)
 
-## Phase 3: Error Notification System
+## Phase 3: Error Notification System [checkpoint: fc2fe7a]
 Focus: Implementing a robust, user-friendly error handling mechanism.
 
 - [x] Task: Define `Notification` struct and add `notification_queue` to `App` state in `app.rs`. [0bd8a10]
