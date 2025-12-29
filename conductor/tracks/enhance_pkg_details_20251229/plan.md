@@ -3,7 +3,7 @@
 ## Phase 1: Backend & Data Structure Updates
 Focus: Extending the data model to support richer package metadata.
 
-- [ ] Task: Update `Package` struct in `pkg.rs` to include `summary`, `description`, `license`, `size`, `url`.
+- [x] Task: Update `Package` struct in `pkg.rs` to include `summary`, `description`, `license`, `size`, `url`. [3d484a3]
     - [ ] Sub-task: Write Tests (Ensure `Package` struct can hold new fields and defaults are correct).
     - [ ] Sub-task: Implement Feature (Add fields to struct).
 - [ ] Task: Update `PackageKitBackend` in `backend.rs` to populate new fields.
