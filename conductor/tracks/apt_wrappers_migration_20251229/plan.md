@@ -35,7 +35,7 @@ Focus: Implementing package management commands and the hybrid confirmation logi
     - [ ] Sub-task: Implement Feature (Add system maintenance to backend).
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: System Altering Operations & Confirmation' (Protocol in workflow.md)
 
-## Phase 4: UX Polish & Progress Indicators
+## Phase 4: UX Polish & Progress Indicators [checkpoint: 326b0ea]
 Focus: Visualizing background tasks and cleaning up the interface.
 
 - [~] Task: Add a persistent "Background Task" status zone in `ui.rs`.
