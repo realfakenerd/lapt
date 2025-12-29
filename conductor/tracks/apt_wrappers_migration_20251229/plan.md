@@ -10,7 +10,7 @@ Focus: Removing PackageKit and establishing the foundation for the new APT wrapp
     - [ ] Sub-task: Implement Feature (Redefine `PackageKitBackend` as `AptBackend` or similar).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Deprecation & New Backend Architecture' (Protocol in workflow.md)
 
-## Phase 2: Core Data Fetching (Listing & Searching)
+## Phase 2: Core Data Fetching (Listing & Searching) [checkpoint: 003f9ff]
 Focus: Implementing robust parsing for standard APT list and search commands.
 
 - [x] Task: Implement `apt list` parsing for installed and upgradable packages. [cc324b8]
