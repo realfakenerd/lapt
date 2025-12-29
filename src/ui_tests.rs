@@ -2,7 +2,7 @@
 mod tests {
     use crate::pkg::Package;
     use crate::ui_details::render_details;
-    use ratatui::{backend::TestBackend, Terminal, buffer::Buffer, layout::Rect};
+    use ratatui::{backend::TestBackend, Terminal, layout::Rect};
 
     #[test]
     fn test_render_details_content() {
@@ -17,21 +17,6 @@ mod tests {
             render_details(f, area, Some(&pkg));
         }).unwrap();
 
-        let expected_buffer = Buffer::with_lines(vec![
-            "┌ Details ─────────────────────────────────────────────────────────────────────┐",
-            "│ Name: vim                                                                    │",
-            "│ Version: 8.2                                                                 │",
-            "│ Status: Installed                                                            │",
-            "│ License: Vim                                                                 │",
-            "│ Size: 0.0 MB                                                                 │",
-            "│ URL: https://vim.org                                                         │",
-            "│                                                                              │",
-            "│ Vi IMproved                                                                  │",
-            "│                                                                              │",
-            "│ Description:                                                                 │",
-            "│ A great editor                                                               │",
-            "└──────────────────────────────────────────────────────────────────────────────┘",
-        ]);
         // Note: Exact matching might be tricky with wrapping and dynamic content, 
         // but we can check for specific substrings in the output buffer.
         

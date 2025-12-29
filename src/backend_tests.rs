@@ -93,4 +93,34 @@ mod tests {
         assert!(found_packages, "Search results not received");
         assert!(found_finished, "TaskFinished event not received");
     }
+
+    #[tokio::test]
+    async fn test_backend_upgrade_system_dispatch() {
+        let backend = AptBackend::new().await.unwrap();
+        let (tx, mut rx) = mpsc::unbounded_channel::<BackendEvent>();
+
+        backend.handle_command(BackendCommand::UpgradeSystem, tx).await.unwrap();
+
+        let mut found_started = false;
+        let mut found_finished = false;
+
+        for _ in 0..50 { // System upgrade might take longer even for just update
+            while let Ok(event) = rx.try_recv() {
+                match event {
+                    BackendEvent::TaskStarted(_) => {
+                        found_started = true;
+                    }
+                    BackendEvent::TaskFinished(BackendCommand::UpgradeSystem) => {
+                        found_finished = true;
+                    }
+                    _ => {}
+                }
+            }
+            if found_started && found_finished { break; }
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+        }
+
+        assert!(found_started, "TaskStarted event not received");
+        assert!(found_finished, "TaskFinished event not received");
+    }
 }

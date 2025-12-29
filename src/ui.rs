@@ -15,14 +15,18 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         Constraint::Length(1),
         Constraint::Min(0),
         Constraint::Length(1),
+        Constraint::Length(1),
     ]);
-    let [header_area, content_area, footer_area] = vertical.areas(area);
+    let [header_area, content_area, status_area, footer_area] = vertical.areas(area);
 
     // Header
     render_header(frame, header_area, app);
 
     // Content
     render_content(frame, content_area, app);
+
+    // Status
+    render_status(frame, status_area, app);
 
     // Footer
     render_footer(frame, footer_area, app);
@@ -127,6 +131,14 @@ fn render_content(frame: &mut Frame, area: Rect, app: &mut App) {
         .and_then(|i| app.filtered_packages.get(i));
     
     crate::ui_details::render_details(frame, detail_area, selected);
+}
+
+fn render_status(frame: &mut Frame, area: Rect, app: &App) {
+    if app.is_loading {
+        let msg = format!(" ⚙️  {} ", app.loading_msg);
+        let line = Line::from(msg).fg(tailwind::AMBER.c400);
+        frame.render_widget(line, area);
+    }
 }
 
 fn render_footer(frame: &mut Frame, area: Rect, _app: &App) {

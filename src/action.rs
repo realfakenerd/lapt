@@ -23,6 +23,7 @@ pub enum Action {
     ConfirmAction, // Enter/y no popup
     CancelAction,  // Esc/n no popup
     DismissNotification,
+    RequestInstall,
     RequestUninstall,
     RequestReinstall,
     RequestUpgradeSystem,

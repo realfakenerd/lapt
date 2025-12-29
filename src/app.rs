@@ -201,6 +201,15 @@ impl App {
             }
 
             // --- Ações de Negócio (Popups) ---
+            Action::RequestInstall => {
+                if let Some(pkg) = self.get_selected_pkg() {
+                    self.open_popup(
+                        "Confirm Installation",
+                        &format!("Install {}?", pkg.name),
+                        Some(BackendCommand::Install(pkg.id.clone())),
+                    );
+                }
+            }
             Action::RequestUninstall => {
                 if let Some(pkg) = self.get_selected_pkg() {
                     self.open_popup(
@@ -301,7 +310,8 @@ impl App {
             BackendEvent::TaskFinished(cmd) => {
                 self.is_loading = false;
                 match cmd {
-                    BackendCommand::Remove(_)
+                    BackendCommand::Install(_)
+                    | BackendCommand::Remove(_)
                     | BackendCommand::Reinstall(_)
                     | BackendCommand::UpgradeSystem => {
                         self.dispatch(BackendCommand::ListInstalled);
@@ -314,7 +324,6 @@ impl App {
                 self.is_loading = false;
                 self.push_notification(Notification::error(err));
             }
-            _ => {}
         }
     }
 

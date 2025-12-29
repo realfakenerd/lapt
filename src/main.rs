@@ -142,6 +142,7 @@ fn map_key_to_action(key: KeyEvent, app: &App) -> Option<Action> {
         KeyCode::Char('l') | KeyCode::Right => Some(Action::SwitchTabNext),
         KeyCode::Char('/') => Some(Action::EnterSearchMode),
         KeyCode::Tab => Some(Action::ToggleFocus),
+        KeyCode::Char('i') => Some(Action::RequestInstall),
         KeyCode::Char('d') => Some(Action::RequestUninstall),
         KeyCode::Char('r') => Some(Action::RequestReinstall),
         KeyCode::Char('U') => Some(Action::RequestUpgradeSystem),

@@ -1,3 +1,4 @@
+use crate::pkg::Package;
 use anyhow::Result;
 use std::process::Command;
 
@@ -13,9 +14,179 @@ pub fn get_package_details(package_name: &str) -> Result<AptDetails> {
     let output = Command::new("apt")
         .args(&["show", package_name])
         .output()?;
-    
+
     let stdout = String::from_utf8(output.stdout)?;
     Ok(parse_apt_show(&stdout))
+}
+
+pub fn list_installed() -> Result<Vec<Package>> {
+    let output = Command::new("apt")
+        .args(&["list", "--installed"])
+        .output()?;
+
+    let stdout = String::from_utf8(output.stdout)?;
+    Ok(parse_apt_list(&stdout, "Installed"))
+}
+
+pub fn list_upgradable() -> Result<Vec<Package>> {
+    let output = Command::new("apt")
+        .args(&["list", "--upgradable"])
+        .output()?;
+
+    let stdout = String::from_utf8(output.stdout)?;
+    Ok(parse_apt_list(&stdout, "Update"))
+}
+
+pub fn search_packages(query: &str) -> Result<Vec<Package>> {
+    let output = Command::new("apt")
+        .args(&["search", query])
+        .output()?;
+
+    let stdout = String::from_utf8(output.stdout)?;
+    Ok(parse_apt_search(&stdout))
+}
+
+pub fn install_package(package_name: &str) -> Result<()> {
+    let status = Command::new("apt-get")
+        .env("DEBIAN_FRONTEND", "noninteractive")
+        .args(&["install", "-y", package_name])
+        .status()?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        anyhow::bail!("apt-get install failed with status: {}", status)
+    }
+}
+
+pub fn remove_package(package_name: &str) -> Result<()> {
+    let status = Command::new("apt-get")
+        .env("DEBIAN_FRONTEND", "noninteractive")
+        .args(&["remove", "-y", package_name])
+        .status()?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        anyhow::bail!("apt-get remove failed with status: {}", status)
+    }
+}
+
+pub fn reinstall_package(package_name: &str) -> Result<()> {
+    let status = Command::new("apt-get")
+        .env("DEBIAN_FRONTEND", "noninteractive")
+        .args(&["install", "--reinstall", "-y", package_name])
+        .status()?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        anyhow::bail!("apt-get reinstall failed with status: {}", status)
+    }
+}
+
+pub fn update_repos() -> Result<()> {
+    let status = Command::new("apt-get")
+        .env("DEBIAN_FRONTEND", "noninteractive")
+        .args(&["update"])
+        .status()?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        anyhow::bail!("apt-get update failed with status: {}", status)
+    }
+}
+
+pub fn upgrade_system() -> Result<()> {
+    let status = Command::new("apt-get")
+        .env("DEBIAN_FRONTEND", "noninteractive")
+        .args(&["dist-upgrade", "-y"])
+        .status()?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        anyhow::bail!("apt-get dist-upgrade failed with status: {}", status)
+    }
+}
+
+fn parse_apt_search(output: &str) -> Vec<Package> {
+    let mut packages = Vec::new();
+    let mut lines = output.lines().peekable();
+
+    while let Some(line) = lines.next() {
+        if line.is_empty()
+            || line.starts_with("Sorting...")
+            || line.starts_with("Full Text Search...")
+            || line.starts_with("WARNING:")
+        {
+            continue;
+        }
+
+        // Format: package/release version architecture
+        // Example: acr/noble 2.1.2-1 all
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 3 {
+            continue;
+        }
+
+        let name_release = parts[0];
+        let version = parts[1];
+        let arch = parts[2];
+
+        let name = name_release.split('/').next().unwrap_or(name_release);
+
+        // Peek next line for summary
+        let mut summary = String::new();
+        if let Some(next_line) = lines.peek() {
+            if next_line.starts_with("  ") {
+                summary = next_line.trim().to_string();
+                lines.next(); // Consume the summary line
+            }
+        }
+
+        // Reconstruct ID: name;version;arch;data
+        let id = format!("{};{};{};{}", name, version, arch, "apt");
+
+        let mut pkg = Package::from_packagekit(&id, "Available", &summary);
+        pkg.status = "Available".to_string();
+        packages.push(pkg);
+    }
+
+    packages
+}
+
+fn parse_apt_list(output: &str, status: &str) -> Vec<Package> {
+    let mut packages = Vec::new();
+
+    for line in output.lines() {
+        if line.is_empty() || line.starts_with("Listing...") || line.starts_with("WARNING:") {
+            continue;
+        }
+
+        // Format: package/release version architecture [status]
+        // Example: adduser/noble,now 3.137ubuntu1 all [installed,automatic]
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 3 {
+            continue;
+        }
+
+        let name_release = parts[0];
+        let version = parts[1];
+        let arch = parts[2];
+
+        let name = name_release.split('/').next().unwrap_or(name_release);
+
+        // Reconstruct ID: name;version;arch;data
+        let id = format!("{};{};{};{}", name, version, arch, "apt");
+
+        let mut pkg = Package::from_packagekit(&id, status, "");
+        pkg.status = status.to_string(); // Ensure status matches what we passed
+        packages.push(pkg);
+    }
+
+    packages
 }
 
 fn parse_apt_show(output: &str) -> AptDetails {
@@ -87,5 +258,41 @@ Description: Vi IMproved - enhanced vi editor
         assert_eq!(details.size, 4331520); // 4230 * 1024
         assert!(details.description.contains("Vi IMproved - enhanced vi editor"));
         assert!(details.description.contains("Many new features have been added"));
+    }
+
+    #[test]
+    fn test_parse_apt_list() {
+        let output = r#"
+Listing...
+adduser/noble,now 3.137ubuntu1 all [installed,automatic]
+alsa-base/noble,now 1.0.25+dfsg-0ubuntu7 all [installed]
+"#;
+        let pkgs = parse_apt_list(output, "Installed");
+        assert_eq!(pkgs.len(), 2);
+        assert_eq!(pkgs[0].name, "adduser");
+        assert_eq!(pkgs[0].version, "3.137ubuntu1");
+        assert_eq!(pkgs[0].arch, "all");
+        assert_eq!(pkgs[0].status, "Installed");
+
+        assert_eq!(pkgs[1].name, "alsa-base");
+    }
+
+    #[test]
+    fn test_parse_apt_search() {
+        let output = r#"
+Sorting...
+Full Text Search...
+acr/noble 2.1.2-1 all
+  autoconf like tool
+
+aerc/noble-updates 0.17.0-1 amd64
+  Pretty Good Email Client
+"#;
+        let pkgs = parse_apt_search(output);
+        assert_eq!(pkgs.len(), 2);
+        assert_eq!(pkgs[0].name, "acr");
+        assert_eq!(pkgs[0].summary, "autoconf like tool");
+        assert_eq!(pkgs[1].name, "aerc");
+        assert_eq!(pkgs[1].summary, "Pretty Good Email Client");
     }
 }

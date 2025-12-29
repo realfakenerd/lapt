@@ -9,6 +9,7 @@ pub enum BackendCommand {
     #[allow(dead_code)]
     Search(String),
     GetDetails(String),
+    Install(String),
     Remove(String),
     Reinstall(String),
     UpgradeSystem,
@@ -21,7 +22,6 @@ pub enum BackendEvent {
     PackageDetailsFound(Package),
     TaskStarted(String),
     TaskFinished(BackendCommand),
-    TaskProgress(u32),
     Error(String),
 }
 
@@ -125,9 +125,69 @@ impl AptBackend {
                     let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
                 });
             }
-            _ => {
-                let _ = tx.send(BackendEvent::TaskStarted("Action not yet implemented".into()));
-                let _ = tx.send(BackendEvent::TaskFinished(cmd_context));
+            BackendCommand::Install(pkg_id) => {
+                let name = pkg_id.split(';').next().unwrap_or("").to_string();
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    let _ = tx_clone.send(BackendEvent::TaskStarted(format!("Installing {}...", name)));
+                    match crate::apt::install_package(&name) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!("Installation failed: {}", e)));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
+            BackendCommand::Remove(pkg_id) => {
+                let name = pkg_id.split(';').next().unwrap_or("").to_string();
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    let _ = tx_clone.send(BackendEvent::TaskStarted(format!("Removing {}...", name)));
+                    match crate::apt::remove_package(&name) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!("Removal failed: {}", e)));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
+            BackendCommand::Reinstall(pkg_id) => {
+                let name = pkg_id.split(';').next().unwrap_or("").to_string();
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    let _ = tx_clone.send(BackendEvent::TaskStarted(format!("Reinstalling {}...", name)));
+                    match crate::apt::reinstall_package(&name) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!("Reinstall failed: {}", e)));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
+            BackendCommand::UpgradeSystem => {
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    let _ = tx_clone.send(BackendEvent::TaskStarted("Updating repositories...".into()));
+                    if let Err(e) = crate::apt::update_repos() {
+                        let _ = tx_clone.send(BackendEvent::Error(format!("Update failed: {}", e)));
+                    } else {
+                        let _ = tx_clone.send(BackendEvent::TaskStarted("Upgrading system...".into()));
+                        match crate::apt::upgrade_system() {
+                            Ok(_) => {}
+                            Err(e) => {
+                                let _ = tx_clone.send(BackendEvent::Error(format!("Upgrade failed: {}", e)));
+                            }
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
             }
         }
 
