@@ -14,7 +14,7 @@ Focus: Extending the data model to support richer package metadata.
 ## Phase 2: UI - Detailed Panel Implementation
 Focus: Visualizing the new metadata in the application's side panel.
 
-- [ ] Task: Create `ui::components::details.rs` (or similar) refactoring the details rendering logic.
+- [x] Task: Create `ui::components::details.rs` (or similar) refactoring the details rendering logic. [fbaeb19]
     - [ ] Sub-task: Write Tests (Verify component renders text correctly based on input `Package`).
     - [ ] Sub-task: Implement Feature (Design the layout using Ratatui widgets).
 - [ ] Task: Integrate new details component into `ui.rs`.
