@@ -47,67 +47,72 @@ pub fn search_packages(query: &str) -> Result<Vec<Package>> {
 }
 
 pub fn install_package(package_name: &str) -> Result<()> {
-    let status = Command::new("apt-get")
+    let output = Command::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["install", "-y", package_name])
-        .status()?;
+        .output()?;
 
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
-        anyhow::bail!("apt-get install failed with status: {}", status)
+        let err = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("apt-get install failed: {}", err)
     }
 }
 
 pub fn remove_package(package_name: &str) -> Result<()> {
-    let status = Command::new("apt-get")
+    let output = Command::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["remove", "-y", package_name])
-        .status()?;
+        .output()?;
 
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
-        anyhow::bail!("apt-get remove failed with status: {}", status)
+        let err = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("apt-get remove failed: {}", err)
     }
 }
 
 pub fn reinstall_package(package_name: &str) -> Result<()> {
-    let status = Command::new("apt-get")
+    let output = Command::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["install", "--reinstall", "-y", package_name])
-        .status()?;
+        .output()?;
 
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
-        anyhow::bail!("apt-get reinstall failed with status: {}", status)
+        let err = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("apt-get reinstall failed: {}", err)
     }
 }
 
 pub fn update_repos() -> Result<()> {
-    let status = Command::new("apt-get")
+    let output = Command::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["update"])
-        .status()?;
+        .output()?;
 
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
-        anyhow::bail!("apt-get update failed with status: {}", status)
+        let err = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("apt-get update failed: {}", err)
     }
 }
 
 pub fn upgrade_system() -> Result<()> {
-    let status = Command::new("apt-get")
+    let output = Command::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["dist-upgrade", "-y"])
-        .status()?;
+        .output()?;
 
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
-        anyhow::bail!("apt-get dist-upgrade failed with status: {}", status)
+        let err = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("apt-get dist-upgrade failed: {}", err)
     }
 }
 
