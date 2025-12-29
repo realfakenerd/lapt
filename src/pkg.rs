@@ -1,0 +1,31 @@
+#[derive(Debug, Clone, PartialEq)]
+pub struct Package {
+    pub id: String, // ID único do PackageKit
+    pub name: String,
+    pub version: String,
+    pub arch: String,
+    pub data: String, // Repositório ou dados extras
+    pub status: String,
+    pub description: String,
+}
+
+impl Package {
+    pub fn from_packagekit(id: &str, status: &str, summary: &str) -> Self {
+        let parts: Vec<&str> = id.split(';').collect();
+
+        let name = parts.get(0).unwrap_or(&"?").to_string();
+        let version = parts.get(1).unwrap_or(&"?").to_string();
+        let arch = parts.get(2).unwrap_or(&"?").to_string();
+        let data = parts.get(3).unwrap_or(&"?").to_string();
+
+        Self {
+            id: id.to_string(),
+            name,
+            version,
+            arch,
+            data,
+            status: status.to_string(),
+            description: summary.to_string(),
+        }
+    }
+}

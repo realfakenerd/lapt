@@ -1,0 +1,141 @@
+mod action;
+mod app;
+mod backend;
+mod pkg;
+mod ui;
+
+use crate::app::App;
+use crate::{
+    action::Action,
+    backend::{BackendCommand, BackendEvent, PackageKitBackend},
+};
+use anyhow::Result;
+use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use tokio::sync::mpsc;
+use tokio::time::Duration;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let mut terminal = ratatui::init();
+
+    // main channel
+    let (tx_action, mut rx_action) = mpsc::unbounded_channel();
+    // command channel
+    let (tx_backend_cmd, mut rx_backend_cmd) = mpsc::unbounded_channel::<BackendCommand>();
+
+    // worker setup backend
+    let tx_action_backend = tx_action.clone();
+
+    tokio::spawn(async move {
+        let (tx_backend_event, rx_backend_event) = std::sync::mpsc::channel::<BackendEvent>();
+
+        // Inicializa Backend
+        let backend = match PackageKitBackend::new().await {
+            Ok(b) => b,
+            Err(e) => {
+                let _ = tx_action_backend
+                    .send(Action::BackendResponse(BackendEvent::Error(e.to_string())));
+                return;
+            }
+        };
+
+        // Bridge: std::mpsc -> tokio::mpsc
+        let tx_action_bridge = tx_action_backend.clone();
+        tokio::spawn(async move {
+            while let Ok(event) = rx_backend_event.recv() {
+                // CORREÇÃO: Trata o Result com let _
+                let _ = tx_action_bridge.send(Action::BackendResponse(event));
+            }
+        });
+
+        // Loop de Comandos do Backend
+        while let Some(cmd) = rx_backend_cmd.recv().await {
+            // CORREÇÃO: Trata o Result do handle_command
+            if let Err(e) = backend.handle_command(cmd, tx_backend_event.clone()).await {
+                let _ = tx_action_backend
+                    .send(Action::BackendResponse(BackendEvent::Error(e.to_string())));
+            }
+        }
+    });
+
+    let tx_action_input = tx_action.clone();
+    tokio::spawn(async move {
+        let tick_rate = Duration::from_millis(16);
+        loop {
+            if event::poll(tick_rate).unwrap() {
+                if let Event::Key(key) = event::read().unwrap() {
+                    if key.kind == KeyEventKind::Press {
+                        let _ = tx_action_input.send(Action::Key(key));
+                    }
+                }
+            } else {
+                let _ = tx_action_input.send(Action::Tick);
+            }
+        }
+    });
+
+    let (std_tx, std_rx) = std::sync::mpsc::channel::<BackendCommand>();
+    let tx_backend_cmd_clone = tx_backend_cmd.clone();
+    tokio::spawn(async move {
+        while let Ok(cmd) = std_rx.recv() {
+            let _ = tx_backend_cmd_clone.send(cmd);
+        }
+    });
+
+    let mut app = App::new(std_tx);
+
+    loop {
+        terminal.draw(|f| ui::draw(f, &mut app))?;
+
+        if let Some(action) = rx_action.recv().await {
+            let effective_action = match action {
+                Action::Key(key) => map_key_to_action(key, &app),
+                _ => Some(action),
+            };
+
+            if let Some(act) = effective_action {
+                app.update(act)?;
+            }
+        }
+
+        if app.should_quit {
+            break;
+        }
+    }
+
+    ratatui::restore();
+    Ok(())
+}
+
+fn map_key_to_action(key: KeyEvent, app: &App) -> Option<Action> {
+    if app.popup.visible {
+        return match key.code {
+            KeyCode::Char('y') | KeyCode::Enter => Some(Action::ConfirmAction),
+            KeyCode::Char('n') | KeyCode::Esc => Some(Action::CancelAction),
+            _ => None,
+        };
+    }
+
+    if app.is_searching {
+        return match key.code {
+            KeyCode::Esc | KeyCode::Enter => Some(Action::ExitSearchMode),
+            KeyCode::Backspace => Some(Action::DeleteSearchChar),
+            KeyCode::Char(c) => Some(Action::UpdateSearchQuery(c)),
+            _ => None,
+        };
+    }
+
+    match key.code {
+        KeyCode::Char('q') | KeyCode::Esc => Some(Action::Quit),
+        KeyCode::Char('j') | KeyCode::Down => Some(Action::SelectNext),
+        KeyCode::Char('k') | KeyCode::Up => Some(Action::SelectPrev),
+        KeyCode::Char('h') | KeyCode::Left => Some(Action::SwitchTabPrev),
+        KeyCode::Char('l') | KeyCode::Right => Some(Action::SwitchTabNext),
+        KeyCode::Char('/') => Some(Action::EnterSearchMode),
+        KeyCode::Tab => Some(Action::ToggleFocus),
+        KeyCode::Char('d') => Some(Action::RequestUninstall),
+        KeyCode::Char('r') => Some(Action::RequestReinstall),
+        KeyCode::Char('U') => Some(Action::RequestUpgradeSystem),
+        _ => None,
+    }
+}
