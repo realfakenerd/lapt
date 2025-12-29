@@ -32,10 +32,10 @@ Focus: Refactoring the backend to provide live activity feedback.
 ## Phase 4: Refresh Action & Integration
 Focus: Adding the refresh capability and final parity checks.
 
-- [ ] Task: Add repository refresh (`apt update`) action.
+- [x] Task: Add repository refresh (`apt update`) action. [caae32c]
     - [ ] Sub-task: Write Tests (Ensure the refresh key dispatches the correct backend command).
     - [ ] Sub-task: Implement Feature (Map `f` key to `Action::RefreshRepos` and implement in backend).
-- [ ] Task: Ensure all management actions work across all tabs.
+- [x] Task: Ensure all management actions work across all tabs. [caae32c]
     - [ ] Sub-task: Write Tests (Verify 'Install' can be triggered from the Online tab).
     - [ ] Sub-task: Implement Feature (Final wiring and cleanup).
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Refresh Action & Integration' (Protocol in workflow.md)
