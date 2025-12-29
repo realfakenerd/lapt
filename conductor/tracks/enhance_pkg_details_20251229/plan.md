@@ -11,7 +11,7 @@ Focus: Extending the data model to support richer package metadata.
     - [ ] Sub-task: Implement Feature (Map PackageKit properties to the updated `Package` struct).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend & Data Structure Updates' (Protocol in workflow.md)
 
-## Phase 2: UI - Detailed Panel Implementation
+## Phase 2: UI - Detailed Panel Implementation [checkpoint: e4bd9e2]
 Focus: Visualizing the new metadata in the application's side panel.
 
 - [x] Task: Create `ui::components::details.rs` (or similar) refactoring the details rendering logic. [fbaeb19]
