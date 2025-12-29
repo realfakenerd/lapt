@@ -4,6 +4,8 @@ mod backend;
 mod pkg;
 mod pkg_tests;
 mod ui;
+mod ui_details;
+mod ui_tests;
 
 use crate::app::App;
 use crate::{
