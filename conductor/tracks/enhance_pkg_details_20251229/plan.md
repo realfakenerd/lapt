@@ -33,7 +33,7 @@ Focus: Implementing a robust, user-friendly error handling mechanism.
 - [x] Task: Update `App::handle_backend_event` to route `BackendEvent::Error` to the notification queue. [1404293]
     - [ ] Sub-task: Write Tests (Simulate an error event and assert it ends up in the queue).
     - [ ] Sub-task: Implement Feature (Connect backend errors to the UI state).
-- [ ] Task: Add `Action::DismissNotification` and handle it in `App::update`.
+- [x] Task: Add `Action::DismissNotification` and handle it in `App::update`. [a9eb5b5]
     - [ ] Sub-task: Write Tests (Test that the action removes the notification from the queue).
     - [ ] Sub-task: Implement Feature (Bind key event `Esc` or `Enter` to dismiss).
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Error Notification System' (Protocol in workflow.md)
