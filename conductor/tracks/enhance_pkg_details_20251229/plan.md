@@ -6,7 +6,7 @@ Focus: Extending the data model to support richer package metadata.
 - [x] Task: Update `Package` struct in `pkg.rs` to include `summary`, `description`, `license`, `size`, `url`. [3d484a3]
     - [ ] Sub-task: Write Tests (Ensure `Package` struct can hold new fields and defaults are correct).
     - [ ] Sub-task: Implement Feature (Add fields to struct).
-- [ ] Task: Update `PackageKitBackend` in `backend.rs` to populate new fields.
+- [x] Task: Update `PackageKitBackend` in `backend.rs` to populate new fields. [8720f61]
     - [ ] Sub-task: Write Tests (Mock PackageKit response or unit test the mapping logic).
     - [ ] Sub-task: Implement Feature (Map PackageKit properties to the updated `Package` struct).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend & Data Structure Updates' (Protocol in workflow.md)
