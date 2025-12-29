@@ -16,6 +16,7 @@ pub enum Action {
     ToggleFocus, // Alternar entre Lista e Detalhes
     EnterSearchMode,
     ExitSearchMode,
+    TriggerOnlineSearch,
     UpdateSearchQuery(char),
     DeleteSearchChar,
 
@@ -27,6 +28,7 @@ pub enum Action {
     RequestUninstall,
     RequestReinstall,
     RequestUpgradeSystem,
+    RefreshRepos,
 
     // --- Eventos do Backend (Respostas) ---
     // O Backend manda BackendEvent, que embrulhamos aqui

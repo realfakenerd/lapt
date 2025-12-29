@@ -124,6 +124,36 @@ mod tests {
         assert!(found_finished, "TaskFinished event not received");
     }
 
+    #[tokio::test]
+    async fn test_backend_refresh_repos_dispatch() {
+        let backend = AptBackend::new().await.unwrap();
+        let (tx, mut rx) = mpsc::unbounded_channel::<BackendEvent>();
+
+        backend.handle_command(BackendCommand::RefreshRepos, tx).await.unwrap();
+
+        let mut found_started = false;
+        let mut found_finished = false;
+
+        for _ in 0..20 {
+            while let Ok(event) = rx.try_recv() {
+                match event {
+                    BackendEvent::TaskStarted(_) => {
+                        found_started = true;
+                    }
+                    BackendEvent::TaskFinished(BackendCommand::RefreshRepos) => {
+                        found_finished = true;
+                    }
+                    _ => {}
+                }
+            }
+            if found_started && found_finished { break; }
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+        }
+
+        assert!(found_started, "TaskStarted event not received");
+        assert!(found_finished, "TaskFinished event not received");
+    }
+
     #[test]
     fn test_parse_apt_signal() {
         use crate::backend::parse_apt_signal;

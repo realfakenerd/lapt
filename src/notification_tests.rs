@@ -17,15 +17,8 @@ mod tests {
         assert_eq!(app.notification_queue.len(), 1);
         assert_eq!(app.notification_queue[0], notif1);
 
-        let notif2 = Notification::info("Info 1".to_string());
-        app.push_notification(notif2.clone());
-
-        assert_eq!(app.notification_queue.len(), 2);
-        assert_eq!(app.notification_queue[1], notif2);
-
         app.dismiss_notification();
-        assert_eq!(app.notification_queue.len(), 1);
-        assert_eq!(app.notification_queue[0], notif2);
+        assert_eq!(app.notification_queue.len(), 0);
     }
 
     #[tokio::test]
@@ -46,7 +39,7 @@ mod tests {
         let (tx, _) = mpsc::unbounded_channel::<BackendCommand>();
         let mut app = App::new(tx);
         
-        app.push_notification(Notification::info("Test".to_string()));
+        app.push_notification(Notification::error("Test".to_string()));
         assert_eq!(app.notification_queue.len(), 1);
 
         app.update(crate::action::Action::DismissNotification).unwrap();

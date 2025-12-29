@@ -192,12 +192,10 @@ pub fn render_error_popup(frame: &mut Frame, area: Rect, app: &App) {
 
         let border_color = match notification.kind {
             crate::app::NotificationKind::Error => tailwind::RED.c500,
-            crate::app::NotificationKind::Info => tailwind::BLUE.c500,
         };
 
         let title = match notification.kind {
             crate::app::NotificationKind::Error => " Error ",
-            crate::app::NotificationKind::Info => " Info ",
         };
 
         let block = Block::bordered()

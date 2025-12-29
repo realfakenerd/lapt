@@ -12,6 +12,7 @@ pub enum BackendCommand {
     Install(String),
     Remove(String),
     Reinstall(String),
+    RefreshRepos,
     UpgradeSystem,
 }
 
@@ -201,6 +202,23 @@ impl AptBackend {
                 tokio::spawn(async move {
                     let backend = AptBackend {};
                     backend.stream_command_output(child, cmd_context, tx_clone).await;
+                });
+            }
+            BackendCommand::RefreshRepos => {
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::spawn(async move {
+                    let backend = AptBackend {};
+                    let _ = tx_clone.send(BackendEvent::TaskStarted("Refreshing repositories...".into()));
+                    match crate::apt::spawn_update() {
+                        Ok(child) => {
+                            backend.stream_command_output(child, cmd_context, tx_clone).await;
+                        }
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!("Refresh failed: {}", e)));
+                            let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                        }
+                    }
                 });
             }
             BackendCommand::UpgradeSystem => {

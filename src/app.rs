@@ -53,18 +53,10 @@ pub struct Notification {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NotificationKind {
-    Info,
     Error,
 }
 
 impl Notification {
-    pub fn info(message: String) -> Self {
-        Self {
-            message,
-            kind: NotificationKind::Info,
-        }
-    }
-
     pub fn error(message: String) -> Self {
         Self {
             message,
@@ -245,6 +237,9 @@ impl App {
                     "Update full system?",
                     Some(BackendCommand::UpgradeSystem),
                 );
+            }
+            Action::RefreshRepos => {
+                self.dispatch(BackendCommand::RefreshRepos);
             }
             Action::ConfirmAction => {
                 if let Some(cmd) = self.popup.command_to_confirm.take() {
