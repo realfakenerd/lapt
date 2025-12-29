@@ -6,7 +6,7 @@ Focus: Adding the "Online" tab infrastructure and ensuring search results are st
 - [x] Task: Update `SelectedTab` and `App` state to support the "Online" tab. [f8c986e]
     - [ ] Sub-task: Write Tests (Ensure tab cycling includes the new variant and state initializes correctly).
     - [ ] Sub-task: Implement Feature (Add `Online` to enum and `online_packages` to `App` struct).
-- [ ] Task: Update UI to render the new tab and its list content.
+- [x] Task: Update UI to render the new tab and its list content. [ac8df93]
     - [ ] Sub-task: Write Tests (Verify tab bar and list area reflect the "Online" state).
     - [ ] Sub-task: Implement Feature (Modify `render_header` and `render_content` in `ui.rs`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Tab Expansion & State Persistence' (Protocol in workflow.md)
