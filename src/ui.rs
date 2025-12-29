@@ -32,6 +32,11 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         render_popup(frame, area, app);
     }
 
+    // Error/Info Notifications
+    if !app.notification_queue.is_empty() {
+        render_error_popup(frame, area, app);
+    }
+
     // Loading Spinner
     if app.is_loading {
         render_loading(frame, area, app);
@@ -166,6 +171,35 @@ fn render_popup(frame: &mut Frame, area: Rect, app: &App) {
         .alignment(Alignment::Center)
         .wrap(Wrap { trim: true });
     frame.render_widget(p, popup_area);
+}
+
+pub fn render_error_popup(frame: &mut Frame, area: Rect, app: &App) {
+    if let Some(notification) = app.notification_queue.first() {
+        let popup_area = centered_rect(area, 60, 20);
+        frame.render_widget(ratatui::widgets::Clear, popup_area);
+
+        let border_color = match notification.kind {
+            crate::app::NotificationKind::Error => tailwind::RED.c500,
+            crate::app::NotificationKind::Info => tailwind::BLUE.c500,
+        };
+
+        let title = match notification.kind {
+            crate::app::NotificationKind::Error => " Error ",
+            crate::app::NotificationKind::Info => " Info ",
+        };
+
+        let block = Block::bordered()
+            .title(Line::from(title).centered())
+            .border_style(Style::default().fg(border_color))
+            .border_set(symbols::border::ROUNDED);
+
+        let p = Paragraph::new(format!("\n{}\n\n[Esc/Enter] Dismiss", notification.message))
+            .block(block)
+            .alignment(Alignment::Center)
+            .wrap(Wrap { trim: true });
+
+        frame.render_widget(p, popup_area);
+    }
 }
 
 fn render_loading(frame: &mut Frame, area: Rect, app: &App) {
