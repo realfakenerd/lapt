@@ -24,7 +24,7 @@ Focus: Visualizing the new metadata in the application's side panel.
 ## Phase 3: Error Notification System
 Focus: Implementing a robust, user-friendly error handling mechanism.
 
-- [ ] Task: Define `Notification` struct and add `notification_queue` to `App` state in `app.rs`.
+- [x] Task: Define `Notification` struct and add `notification_queue` to `App` state in `app.rs`. [0bd8a10]
     - [ ] Sub-task: Write Tests (Test pushing/popping notifications from the queue).
     - [ ] Sub-task: Implement Feature (Add struct and state field).
 - [ ] Task: Create `ErrorPopup` component in `ui.rs`.
