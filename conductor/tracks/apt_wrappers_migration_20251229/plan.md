@@ -5,7 +5,7 @@ Focus: Removing PackageKit and establishing the foundation for the new APT wrapp
 
 - [x] Task: Remove `PackageKit` dependencies from `Cargo.toml` and clean up imports. [90a12ee]
     - [ ] Sub-task: Implement Feature (Remove `packagekit-zbus` and related crates).
-- [ ] Task: Refactor `backend.rs` to use `AptBackend` as the primary engine.
+- [x] Task: Refactor `backend.rs` to use `AptBackend` as the primary engine. [790448c]
     - [ ] Sub-task: Write Tests (Ensure `BackendCommand` and `BackendEvent` still meet application needs).
     - [ ] Sub-task: Implement Feature (Redefine `PackageKitBackend` as `AptBackend` or similar).
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Deprecation & New Backend Architecture' (Protocol in workflow.md)
