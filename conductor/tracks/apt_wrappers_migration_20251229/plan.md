@@ -1,6 +1,6 @@
 # Plan: Transition to APT Command Wrappers (lazygit-style)
 
-## Phase 1: Deprecation & New Backend Architecture
+## Phase 1: Deprecation & New Backend Architecture [checkpoint: 44a4dcb]
 Focus: Removing PackageKit and establishing the foundation for the new APT wrapper-based backend.
 
 - [x] Task: Remove `PackageKit` dependencies from `Cargo.toml` and clean up imports. [90a12ee]
