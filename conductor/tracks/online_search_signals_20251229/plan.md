@@ -22,7 +22,7 @@ Focus: Implementing the explicit search trigger and result handling.
     - [ ] Sub-task: Implement Feature (Update `handle_backend_event` in `app.rs`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Manual Online Search Integration' (Protocol in workflow.md)
 
-## Phase 3: Real-time Signal System (Async Streaming)
+## Phase 3: Real-time Signal System (Async Streaming) [checkpoint: 63d2100]
 Focus: Refactoring the backend to provide live activity feedback.
 
 - [x] Task: Implement async stdout streaming in `AptBackend`. [78fa9ef]
