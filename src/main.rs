@@ -1,5 +1,6 @@
 mod action;
 mod app;
+mod apt;
 mod backend;
 mod pkg;
 mod pkg_tests;

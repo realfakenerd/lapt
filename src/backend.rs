@@ -53,6 +53,26 @@ impl PackageKitBackend {
         cmd: BackendCommand,
         tx: std::sync::mpsc::Sender<BackendEvent>,
     ) -> Result<()> {
+        if let BackendCommand::GetDetails(pkg_id) = &cmd {
+            let name = pkg_id.split(';').next().unwrap_or("").to_string();
+            let tx_clone = tx.clone();
+            let id_clone = pkg_id.clone();
+
+            tokio::task::spawn_blocking(move || {
+                if let Ok(details) = crate::apt::get_package_details(&name) {
+                    let mut pkg = Package::from_packagekit(&id_clone, "", "");
+                    pkg.update_details(
+                        &details.description,
+                        &details.license,
+                        details.size,
+                        &details.url,
+                    );
+                    let _ = tx_clone.send(BackendEvent::PackageDetailsFound(pkg));
+                }
+            });
+            return Ok(());
+        }
+
         let cmd_context = cmd.clone();
         let pk = PackageKitProxy::new(&self.connection).await?;
         let transaction_path = pk.create_transaction().await?;
@@ -66,7 +86,6 @@ impl PackageKitBackend {
         // Listeners
         let mut progress_stream = transaction.receive_signal("Percentage").await?;
         let mut package_stream = transaction.receive_signal("Package").await?;
-        let mut details_stream = transaction.receive_signal("Details").await?;
         let mut error_stream = transaction.receive_signal("ErrorCode").await?;
         let mut finished_stream = transaction.receive_signal("Finished").await?;
 
@@ -97,9 +116,6 @@ impl PackageKitBackend {
                 let filter = FILTER_NOT_INSTALLED | FILTER_ARCH | FILTER_NOT_SOURCE;
                 transaction.search_names(filter, &[&query]).await?;
             }
-            BackendCommand::GetDetails(pkg_id) => {
-                transaction.get_details(&[&pkg_id]).await?;
-            }
             BackendCommand::Remove(pkg_id) => {
                 tx.send(BackendEvent::TaskStarted("Removing...".into()))?;
                 transaction
@@ -116,6 +132,7 @@ impl PackageKitBackend {
                 tx.send(BackendEvent::TaskStarted("System Upgrade...".into()))?;
                 transaction.update_packages(transaction_flags, &[]).await?;
             }
+            BackendCommand::GetDetails(_) => unreachable!(),
         }
 
         let mut packages = Vec::new();
@@ -140,14 +157,6 @@ impl PackageKitBackend {
                             let pkg = Package::from_packagekit(&id, status_str, &summary);
                             packages.push(pkg);
                         }
-                    }
-                }
-
-                Some(msg) = details_stream.next() => {
-                    if let Ok((id, license, _group, description, url, size)) = msg.body::<(String, String, u32, String, String, u64)>() {
-                        let mut pkg = Package::from_packagekit(&id, "", "");
-                        pkg.update_details(&description, &license, size, &url);
-                        tx.send(BackendEvent::PackageDetailsFound(pkg))?;
                     }
                 }
 
