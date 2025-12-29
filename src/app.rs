@@ -195,6 +195,13 @@ impl App {
                     (FxDuration::from_millis(150), Interpolation::SineOut),
                 ));
             }
+            Action::TriggerOnlineSearch => {
+                let query = self.search_query.clone();
+                if !query.is_empty() {
+                    self.dispatch(BackendCommand::Search(query));
+                }
+                self.is_searching = false;
+            }
             Action::UpdateSearchQuery(c) => {
                 self.search_query.push(c);
                 self.perform_search();
@@ -275,6 +282,12 @@ impl App {
             BackendEvent::UpgradablePackagesFound(pkgs) => {
                 self.upgradable_packages = pkgs;
                 if self.selected_tab == SelectedTab::Upgradable {
+                    self.perform_search();
+                }
+            }
+            BackendEvent::SearchResultsFound(pkgs) => {
+                self.online_packages = pkgs;
+                if self.selected_tab == SelectedTab::Online {
                     self.perform_search();
                 }
             }

@@ -129,7 +129,14 @@ fn map_key_to_action(key: KeyEvent, app: &App) -> Option<Action> {
 
     if app.is_searching {
         return match key.code {
-            KeyCode::Esc | KeyCode::Enter => Some(Action::ExitSearchMode),
+            KeyCode::Esc => Some(Action::ExitSearchMode),
+            KeyCode::Enter => {
+                if app.selected_tab == crate::app::SelectedTab::Online {
+                    Some(Action::TriggerOnlineSearch)
+                } else {
+                    Some(Action::ExitSearchMode)
+                }
+            }
             KeyCode::Backspace => Some(Action::DeleteSearchChar),
             KeyCode::Char(c) => Some(Action::UpdateSearchQuery(c)),
             _ => None,

@@ -19,6 +19,7 @@ pub enum BackendCommand {
 pub enum BackendEvent {
     InstalledPackagesFound(Vec<Package>),
     UpgradablePackagesFound(Vec<Package>),
+    SearchResultsFound(Vec<Package>),
     PackageDetailsFound(Package),
     TaskStarted(String),
     TaskFinished(BackendCommand),
@@ -88,7 +89,7 @@ impl AptBackend {
                 tokio::task::spawn_blocking(move || {
                     match crate::apt::search_packages(&query) {
                         Ok(pkgs) => {
-                            let _ = tx_clone.send(BackendEvent::InstalledPackagesFound(pkgs));
+                            let _ = tx_clone.send(BackendEvent::SearchResultsFound(pkgs));
                         }
                         Err(e) => {
                             let _ = tx_clone.send(BackendEvent::Error(format!("Search failed: {}", e)));

@@ -76,7 +76,7 @@ mod tests {
         for _ in 0..20 {
             while let Ok(event) = rx.try_recv() {
                 match event {
-                    BackendEvent::InstalledPackagesFound(pkgs) => {
+                    BackendEvent::SearchResultsFound(pkgs) => {
                         assert!(!pkgs.is_empty());
                         found_packages = true;
                     }
