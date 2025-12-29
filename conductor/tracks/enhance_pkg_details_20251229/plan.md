@@ -30,7 +30,7 @@ Focus: Implementing a robust, user-friendly error handling mechanism.
 - [x] Task: Create `ErrorPopup` component in `ui.rs`. [9c983b3]
     - [ ] Sub-task: Write Tests (Verify popup dimensions and text rendering).
     - [ ] Sub-task: Implement Feature (Implement the rendering logic for the popup).
-- [ ] Task: Update `App::handle_backend_event` to route `BackendEvent::Error` to the notification queue.
+- [x] Task: Update `App::handle_backend_event` to route `BackendEvent::Error` to the notification queue. [1404293]
     - [ ] Sub-task: Write Tests (Simulate an error event and assert it ends up in the queue).
     - [ ] Sub-task: Implement Feature (Connect backend errors to the UI state).
 - [ ] Task: Add `Action::DismissNotification` and handle it in `App::update`.
