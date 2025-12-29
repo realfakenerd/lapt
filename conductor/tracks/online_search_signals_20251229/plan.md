@@ -14,10 +14,10 @@ Focus: Adding the "Online" tab infrastructure and ensuring search results are st
 ## Phase 2: Manual Online Search Integration
 Focus: Implementing the explicit search trigger and result handling.
 
-- [ ] Task: Modify search interaction to support manual triggers.
+- [~] Task: Modify search interaction to support manual triggers.
     - [ ] Sub-task: Write Tests (Ensure `Enter` in search mode dispatches a command ONLY when on the Online tab).
     - [ ] Sub-task: Implement Feature (Update `map_key_to_action` and `App::update`).
-- [ ] Task: Connect backend search results to the persistent `online_packages` state.
+- [x] Task: Connect backend search results to the persistent `online_packages` state. [64ecb86]
     - [ ] Sub-task: Write Tests (Simulate search result event and verify state persistence).
     - [ ] Sub-task: Implement Feature (Update `handle_backend_event` in `app.rs`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Manual Online Search Integration' (Protocol in workflow.md)
