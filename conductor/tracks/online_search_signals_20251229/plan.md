@@ -25,12 +25,8 @@ Focus: Implementing the explicit search trigger and result handling.
 ## Phase 3: Real-time Signal System (Async Streaming)
 Focus: Refactoring the backend to provide live activity feedback.
 
-- [ ] Task: Implement async stdout streaming in `AptBackend`.
-    - [ ] Sub-task: Write Tests (Verify that multiple events are emitted during a simulated long-running command).
-    - [ ] Sub-task: Implement Feature (Refactor `backend.rs` to use `tokio::process::Command` and line-by-line reading).
-- [ ] Task: Create a signal parser for APT output lines.
-    - [ ] Sub-task: Write Tests (Test parsing of strings like "Unpacking..." or "Setting up...").
-    - [ ] Sub-task: Implement Feature (Add parsing logic to extract meaningful status messages).
+- [x] Task: Implement async stdout streaming in `AptBackend`. [78fa9ef]
+- [x] Task: Create a signal parser for APT output lines. [78fa9ef]
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Real-time Signal System (Async Streaming)' (Protocol in workflow.md)
 
 ## Phase 4: Refresh Action & Integration
