@@ -13,7 +13,7 @@ mod ui_tests;
 use crate::app::App;
 use crate::{
     action::Action,
-    backend::{BackendCommand, BackendEvent, PackageKitBackend},
+    backend::{AptBackend, BackendCommand, BackendEvent},
 };
 use anyhow::Result;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
         let (tx_backend_event, rx_backend_event) = std::sync::mpsc::channel::<BackendEvent>();
 
         // Inicializa Backend
-        let backend = match PackageKitBackend::new().await {
+        let backend = match AptBackend::new().await {
             Ok(b) => b,
             Err(e) => {
                 let _ = tx_action_backend
