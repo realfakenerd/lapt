@@ -13,10 +13,10 @@ Focus: Removing PackageKit and establishing the foundation for the new APT wrapp
 ## Phase 2: Core Data Fetching (Listing & Searching)
 Focus: Implementing robust parsing for standard APT list and search commands.
 
-- [ ] Task: Implement `apt list` parsing for installed and upgradable packages.
+- [x] Task: Implement `apt list` parsing for installed and upgradable packages. [cc324b8]
     - [ ] Sub-task: Write Tests (Test with sample `apt list` outputs).
     - [ ] Sub-task: Implement Feature (Create the parser in `src/apt.rs`).
-- [ ] Task: Implement `apt search` parsing logic.
+- [~] Task: Implement `apt search` parsing logic.
     - [ ] Sub-task: Write Tests (Verify search result extraction).
     - [ ] Sub-task: Implement Feature (Add search wrapper to `src/apt.rs`).
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Core Data Fetching (Listing & Searching)' (Protocol in workflow.md)
