@@ -8,23 +8,25 @@ use strum::{Display, EnumIter, FromRepr};
 use tachyonfx::{fx, Duration as FxDuration, EffectManager, Interpolation};
 
 // Enums auxiliares (Tab, Panel, Popup, etc)
-#[derive(Default, PartialEq, Clone, Copy, Display, FromRepr, EnumIter)]
+#[derive(Default, PartialEq, Clone, Copy, Display, FromRepr, EnumIter, Debug)]
 pub enum SelectedTab {
     #[default]
     #[strum(to_string = "Installed")]
     Installed,
     #[strum(to_string = "Upgradable")]
     Upgradable,
+    #[strum(to_string = "Online")]
+    Online,
 }
 
 impl SelectedTab {
     pub fn next(self) -> Self {
         let i = self as usize;
-        Self::from_repr(i + 1).unwrap_or(self)
+        Self::from_repr(i + 1).unwrap_or(Self::Installed)
     }
     pub fn previous(self) -> Self {
         let i = self as usize;
-        Self::from_repr(i.saturating_sub(1)).unwrap_or(self)
+        Self::from_repr(i.saturating_sub(1)).unwrap_or(Self::Online)
     }
 }
 
@@ -79,6 +81,7 @@ pub struct App {
     // Dados
     pub installed_packages: Vec<Package>,
     pub upgradable_packages: Vec<Package>,
+    pub online_packages: Vec<Package>,
     pub filtered_packages: Vec<Package>,
 
     // UI State
@@ -108,6 +111,7 @@ impl App {
             effects: EffectManager::default(),
             installed_packages: vec![],
             upgradable_packages: vec![],
+            online_packages: vec![],
             filtered_packages: vec![],
             selected_tab: SelectedTab::Installed,
             active_panel: Panel::PackageList,
@@ -331,6 +335,7 @@ impl App {
         let source = match self.selected_tab {
             SelectedTab::Installed => &self.installed_packages,
             SelectedTab::Upgradable => &self.upgradable_packages,
+            SelectedTab::Online => &self.online_packages,
         };
         if self.search_query.is_empty() {
             self.filtered_packages = source.clone();

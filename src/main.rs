@@ -6,6 +6,7 @@ mod backend_tests;
 mod notification_tests;
 mod pkg;
 mod pkg_tests;
+mod tab_tests;
 mod ui;
 mod ui_details;
 mod ui_error_tests;
