@@ -29,7 +29,7 @@ Focus: Refactoring the backend to provide live activity feedback.
 - [x] Task: Create a signal parser for APT output lines. [78fa9ef]
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Real-time Signal System (Async Streaming)' (Protocol in workflow.md)
 
-## Phase 4: Refresh Action & Integration
+## Phase 4: Refresh Action & Integration [checkpoint: a93aaf5]
 Focus: Adding the refresh capability and final parity checks.
 
 - [x] Task: Add repository refresh (`apt update`) action. [caae32c]
