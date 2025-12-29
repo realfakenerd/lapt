@@ -43,6 +43,34 @@ pub struct Popup {
     pub command_to_confirm: Option<BackendCommand>, // Guardamos o comando pronto
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct Notification {
+    pub message: String,
+    pub kind: NotificationKind,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum NotificationKind {
+    Info,
+    Error,
+}
+
+impl Notification {
+    pub fn info(message: String) -> Self {
+        Self {
+            message,
+            kind: NotificationKind::Info,
+        }
+    }
+
+    pub fn error(message: String) -> Self {
+        Self {
+            message,
+            kind: NotificationKind::Error,
+        }
+    }
+}
+
 // O ESTADO DA APLICAÇÃO
 pub struct App {
     pub should_quit: bool,
@@ -58,6 +86,7 @@ pub struct App {
     pub active_panel: Panel,
     pub list_state: ListState,
     pub popup: Popup,
+    pub notification_queue: Vec<Notification>,
 
     // Search
     pub search_query: String,
@@ -84,6 +113,7 @@ impl App {
             active_panel: Panel::PackageList,
             list_state: ListState::default(),
             popup: Popup::default(),
+            notification_queue: Vec::new(),
             search_query: String::new(),
             is_searching: false,
             matcher: SkimMatcherV2::default(),
@@ -102,6 +132,16 @@ impl App {
         let _ = self.tx_cmd.send(cmd);
         self.is_loading = true;
         self.loading_msg = "Processing...".into();
+    }
+
+    pub fn push_notification(&mut self, notification: Notification) {
+        self.notification_queue.push(notification);
+    }
+
+    pub fn dismiss_notification(&mut self) {
+        if !self.notification_queue.is_empty() {
+            self.notification_queue.remove(0);
+        }
     }
 
     // O REDUCER: (State, Action) -> New State

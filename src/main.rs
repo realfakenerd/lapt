@@ -2,6 +2,7 @@ mod action;
 mod app;
 mod apt;
 mod backend;
+mod notification_tests;
 mod pkg;
 mod pkg_tests;
 mod ui;
