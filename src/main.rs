@@ -2,6 +2,7 @@ mod action;
 mod app;
 mod backend;
 mod pkg;
+mod pkg_tests;
 mod ui;
 
 use crate::app::App;

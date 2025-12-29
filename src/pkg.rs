@@ -6,7 +6,11 @@ pub struct Package {
     pub arch: String,
     pub data: String, // Repositório ou dados extras
     pub status: String,
+    pub summary: String,
     pub description: String,
+    pub license: String,
+    pub size: u64,
+    pub url: String,
 }
 
 impl Package {
@@ -25,7 +29,11 @@ impl Package {
             arch,
             data,
             status: status.to_string(),
-            description: summary.to_string(),
+            summary: summary.to_string(),
+            description: String::new(),
+            license: String::new(),
+            size: 0,
+            url: String::new(),
         }
     }
 }

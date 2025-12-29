@@ -123,7 +123,7 @@ fn render_content(frame: &mut Frame, area: Rect, app: &mut App) {
     let text = if let Some(pkg) = selected {
         format!(
             "Name: {}\nVer: {}\nStatus: {}\n\n{}",
-            pkg.name, pkg.version, pkg.status, pkg.description
+            pkg.name, pkg.version, pkg.status, pkg.summary
         )
     } else {
         "No selection".into()
