@@ -1,11 +1,11 @@
 use crate::action::Action;
 use crate::backend::{BackendCommand, BackendEvent};
 use crate::pkg::Package;
-use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
+use fuzzy_matcher::{skim::SkimMatcherV2, FuzzyMatcher};
 use ratatui::widgets::ListState;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::UnboundedSender;
 use strum::{Display, EnumIter, FromRepr};
-use tachyonfx::{Duration as FxDuration, EffectManager, Interpolation, fx};
+use tachyonfx::{fx, Duration as FxDuration, EffectManager, Interpolation};
 
 // Enums auxiliares (Tab, Panel, Popup, etc)
 #[derive(Default, PartialEq, Clone, Copy, Display, FromRepr, EnumIter)]
@@ -98,11 +98,11 @@ pub struct App {
     pub loading_msg: String,
 
     // Canal para mandar coisas pro Backend
-    pub tx_cmd: Sender<BackendCommand>,
+    pub tx_cmd: UnboundedSender<BackendCommand>,
 }
 
 impl App {
-    pub fn new(tx_cmd: Sender<BackendCommand>) -> Self {
+    pub fn new(tx_cmd: UnboundedSender<BackendCommand>) -> Self {
         let mut app = Self {
             should_quit: false,
             effects: EffectManager::default(),
@@ -269,17 +269,32 @@ impl App {
                 // Update in all lists
                 for p in self.installed_packages.iter_mut() {
                     if p.id == details.id {
-                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                        p.update_details(
+                            &details.description,
+                            &details.license,
+                            details.size,
+                            &details.url,
+                        );
                     }
                 }
                 for p in self.upgradable_packages.iter_mut() {
                     if p.id == details.id {
-                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                        p.update_details(
+                            &details.description,
+                            &details.license,
+                            details.size,
+                            &details.url,
+                        );
                     }
                 }
                 for p in self.filtered_packages.iter_mut() {
                     if p.id == details.id {
-                        p.update_details(&details.description, &details.license, details.size, &details.url);
+                        p.update_details(
+                            &details.description,
+                            &details.license,
+                            details.size,
+                            &details.url,
+                        );
                     }
                 }
             }

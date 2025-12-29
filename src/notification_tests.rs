@@ -2,11 +2,11 @@
 mod tests {
     use crate::app::{App, Notification};
     use crate::backend::BackendCommand;
-    use std::sync::mpsc;
+    use tokio::sync::mpsc;
 
-    #[test]
-    fn test_notification_queue() {
-        let (tx, _) = mpsc::channel::<BackendCommand>();
+    #[tokio::test]
+    async fn test_notification_queue() {
+        let (tx, _) = mpsc::unbounded_channel::<BackendCommand>();
         let mut app = App::new(tx);
 
         assert!(app.notification_queue.is_empty());
@@ -23,19 +23,15 @@ mod tests {
         assert_eq!(app.notification_queue.len(), 2);
         assert_eq!(app.notification_queue[1], notif2);
 
-        // Dismiss (LIFO or FIFO? Spec doesn't strictly say, but usually a stack or queue.
-        // Let's assume Queue for now, or Stack if it's "pop".
-        // The plan says "notification_queue", implies Queue.
-        
         app.dismiss_notification();
         assert_eq!(app.notification_queue.len(), 1);
         assert_eq!(app.notification_queue[0], notif2);
     }
 
-    #[test]
-    fn test_handle_backend_error_event() {
+    #[tokio::test]
+    async fn test_handle_backend_error_event() {
         use crate::backend::BackendEvent;
-        let (tx, _) = mpsc::channel::<BackendCommand>();
+        let (tx, _) = mpsc::unbounded_channel::<BackendCommand>();
         let mut app = App::new(tx);
 
         app.update(crate::action::Action::BackendResponse(BackendEvent::Error("Test Error".to_string()))).unwrap();
@@ -45,9 +41,9 @@ mod tests {
         assert_eq!(app.notification_queue[0].kind, crate::app::NotificationKind::Error);
     }
 
-    #[test]
-    fn test_action_dismiss_notification() {
-        let (tx, _) = mpsc::channel::<BackendCommand>();
+    #[tokio::test]
+    async fn test_action_dismiss_notification() {
+        let (tx, _) = mpsc::unbounded_channel::<BackendCommand>();
         let mut app = App::new(tx);
         
         app.push_notification(Notification::info("Test".to_string()));

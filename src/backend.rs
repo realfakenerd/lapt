@@ -1,5 +1,6 @@
 use crate::pkg::Package;
 use anyhow::Result;
+use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BackendCommand {
@@ -24,26 +25,83 @@ pub enum BackendEvent {
     Error(String),
 }
 
-pub struct AptBackend {
-}
+pub struct AptBackend {}
 
 impl AptBackend {
     pub async fn new() -> Result<Self> {
-        Ok(Self { })
+        Ok(Self {})
     }
 
     pub async fn handle_command(
         &self,
         cmd: BackendCommand,
-        tx: std::sync::mpsc::Sender<BackendEvent>,
+        tx: UnboundedSender<BackendEvent>,
     ) -> Result<()> {
         let cmd_context = cmd.clone();
 
         match &cmd {
+            BackendCommand::ListInstalled => {
+                let _ = tx.send(BackendEvent::TaskStarted(
+                    "Listing installed packages...".into(),
+                ));
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    match crate::apt::list_installed() {
+                        Ok(pkgs) => {
+                            let _ = tx_clone.send(BackendEvent::InstalledPackagesFound(pkgs));
+                        }
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!(
+                                "Failed to list installed: {}",
+                                e
+                            )));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
+            BackendCommand::ListUpgradable => {
+                let _ = tx.send(BackendEvent::TaskStarted("Checking for updates...".into()));
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                tokio::task::spawn_blocking(move || {
+                    match crate::apt::list_upgradable() {
+                        Ok(pkgs) => {
+                            let _ = tx_clone.send(BackendEvent::UpgradablePackagesFound(pkgs));
+                        }
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!(
+                                "Failed to list upgradable: {}",
+                                e
+                            )));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
+            BackendCommand::Search(query) => {
+                let _ = tx.send(BackendEvent::TaskStarted(format!("Searching '{}'...", query)));
+                let tx_clone = tx.clone();
+                let cmd_context = cmd_context.clone();
+                let query = query.clone();
+                tokio::task::spawn_blocking(move || {
+                    match crate::apt::search_packages(&query) {
+                        Ok(pkgs) => {
+                            let _ = tx_clone.send(BackendEvent::InstalledPackagesFound(pkgs));
+                        }
+                        Err(e) => {
+                            let _ = tx_clone.send(BackendEvent::Error(format!("Search failed: {}", e)));
+                        }
+                    }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
+                });
+            }
             BackendCommand::GetDetails(pkg_id) => {
                 let name = pkg_id.split(';').next().unwrap_or("").to_string();
                 let tx_clone = tx.clone();
                 let id_clone = pkg_id.clone();
+                let cmd_context = cmd_context.clone();
 
                 tokio::task::spawn_blocking(move || {
                     match crate::apt::get_package_details(&name) {
@@ -58,15 +116,18 @@ impl AptBackend {
                             let _ = tx_clone.send(BackendEvent::PackageDetailsFound(pkg));
                         }
                         Err(e) => {
-                            eprintln!("Failed to fetch details for '{}': {}", name, e);
+                            let _ = tx_clone.send(BackendEvent::Error(format!(
+                                "Failed to fetch details for '{}': {}",
+                                name, e
+                            )));
                         }
                     }
+                    let _ = tx_clone.send(BackendEvent::TaskFinished(cmd_context));
                 });
             }
             _ => {
-                // To be implemented in next tasks
-                tx.send(BackendEvent::TaskStarted("Initializing Apt Backend...".into()))?;
-                tx.send(BackendEvent::TaskFinished(cmd_context))?;
+                let _ = tx.send(BackendEvent::TaskStarted("Action not yet implemented".into()));
+                let _ = tx.send(BackendEvent::TaskFinished(cmd_context));
             }
         }
 

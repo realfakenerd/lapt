@@ -2,13 +2,13 @@
 mod tests {
     use crate::app::{App, Notification};
     use crate::ui::render_error_popup;
-    use ratatui::{backend::TestBackend, Terminal, buffer::Buffer, layout::Rect};
-    use std::sync::mpsc;
+    use ratatui::{backend::TestBackend, Terminal, layout::Rect};
+    use tokio::sync::mpsc;
     use crate::backend::BackendCommand;
 
-    #[test]
-    fn test_render_error_popup() {
-        let (tx, _) = mpsc::channel::<BackendCommand>();
+    #[tokio::test]
+    async fn test_render_error_popup() {
+        let (tx, _) = mpsc::unbounded_channel::<BackendCommand>();
         let mut app = App::new(tx);
         
         let notif = Notification::error("Critical Failure".to_string());

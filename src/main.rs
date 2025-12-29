@@ -25,18 +25,13 @@ use tokio::time::Duration;
 async fn main() -> Result<()> {
     let mut terminal = ratatui::init();
 
-    // main channel
-    let (tx_action, mut rx_action) = mpsc::unbounded_channel();
-    // command channel
+    // channels
+    let (tx_action, mut rx_action) = mpsc::unbounded_channel::<Action>();
     let (tx_backend_cmd, mut rx_backend_cmd) = mpsc::unbounded_channel::<BackendCommand>();
 
-    // worker setup backend
+    // Backend worker
     let tx_action_backend = tx_action.clone();
-
     tokio::spawn(async move {
-        let (tx_backend_event, rx_backend_event) = std::sync::mpsc::channel::<BackendEvent>();
-
-        // Inicializa Backend
         let backend = match AptBackend::new().await {
             Ok(b) => b,
             Err(e) => {
@@ -46,25 +41,15 @@ async fn main() -> Result<()> {
             }
         };
 
-        // Bridge: std::mpsc -> tokio::mpsc
-        let tx_action_bridge = tx_action_backend.clone();
-        tokio::spawn(async move {
-            while let Ok(event) = rx_backend_event.recv() {
-                // CORREÇÃO: Trata o Result com let _
-                let _ = tx_action_bridge.send(Action::BackendResponse(event));
-            }
-        });
-
-        // Loop de Comandos do Backend
         while let Some(cmd) = rx_backend_cmd.recv().await {
-            // CORREÇÃO: Trata o Result do handle_command
-            if let Err(e) = backend.handle_command(cmd, tx_backend_event.clone()).await {
+            if let Err(e) = backend.handle_command(cmd, tx_action_backend.clone().downgrade_to_backend()).await {
                 let _ = tx_action_backend
                     .send(Action::BackendResponse(BackendEvent::Error(e.to_string())));
             }
         }
     });
 
+    // Input loop
     let tx_action_input = tx_action.clone();
     tokio::spawn(async move {
         let tick_rate = Duration::from_millis(16);
@@ -81,15 +66,7 @@ async fn main() -> Result<()> {
         }
     });
 
-    let (std_tx, std_rx) = std::sync::mpsc::channel::<BackendCommand>();
-    let tx_backend_cmd_clone = tx_backend_cmd.clone();
-    tokio::spawn(async move {
-        while let Ok(cmd) = std_rx.recv() {
-            let _ = tx_backend_cmd_clone.send(cmd);
-        }
-    });
-
-    let mut app = App::new(std_tx);
+    let mut app = App::new(tx_backend_cmd);
 
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;
@@ -112,6 +89,24 @@ async fn main() -> Result<()> {
 
     ratatui::restore();
     Ok(())
+}
+
+// Extension trait to convert Action sender to BackendEvent sender
+trait ActionSenderExt {
+    fn downgrade_to_backend(self) -> mpsc::UnboundedSender<BackendEvent>;
+}
+
+impl ActionSenderExt for mpsc::UnboundedSender<Action> {
+    fn downgrade_to_backend(self) -> mpsc::UnboundedSender<BackendEvent> {
+        let (tx, mut rx) = mpsc::unbounded_channel::<BackendEvent>();
+        let tx_action = self.clone();
+        tokio::spawn(async move {
+            while let Some(event) = rx.recv().await {
+                let _ = tx_action.send(Action::BackendResponse(event));
+            }
+        });
+        tx
+    }
 }
 
 fn map_key_to_action(key: KeyEvent, app: &App) -> Option<Action> {
