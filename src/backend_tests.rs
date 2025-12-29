@@ -123,4 +123,14 @@ mod tests {
         assert!(found_started, "TaskStarted event not received");
         assert!(found_finished, "TaskFinished event not received");
     }
+
+    #[test]
+    fn test_parse_apt_signal() {
+        use crate::backend::parse_apt_signal;
+        
+        assert_eq!(parse_apt_signal("Unpacking vim (2:9.1)..."), Some("Unpacking vim (2:9.1)...".to_string()));
+        assert_eq!(parse_apt_signal("Setting up vim..."), Some("Setting up vim...".to_string()));
+        assert_eq!(parse_apt_signal("Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease"), Some("Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease".to_string()));
+        assert_eq!(parse_apt_signal("Not interesting output"), None);
+    }
 }

@@ -1,6 +1,7 @@
 use crate::pkg::Package;
 use anyhow::Result;
-use std::process::Command;
+use std::process::{Command, Stdio};
+use tokio::process::Command as TokioCommand;
 
 #[derive(Debug, Default, PartialEq)]
 pub struct AptDetails {
@@ -46,74 +47,49 @@ pub fn search_packages(query: &str) -> Result<Vec<Package>> {
     Ok(parse_apt_search(&stdout))
 }
 
-pub fn install_package(package_name: &str) -> Result<()> {
-    let output = Command::new("apt-get")
+pub fn spawn_install(package_name: &str) -> Result<tokio::process::Child> {
+    Ok(TokioCommand::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["install", "-y", package_name])
-        .output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("apt-get install failed: {}", err)
-    }
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?)
 }
 
-pub fn remove_package(package_name: &str) -> Result<()> {
-    let output = Command::new("apt-get")
+pub fn spawn_remove(package_name: &str) -> Result<tokio::process::Child> {
+    Ok(TokioCommand::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["remove", "-y", package_name])
-        .output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("apt-get remove failed: {}", err)
-    }
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?)
 }
 
-pub fn reinstall_package(package_name: &str) -> Result<()> {
-    let output = Command::new("apt-get")
+pub fn spawn_reinstall(package_name: &str) -> Result<tokio::process::Child> {
+    Ok(TokioCommand::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["install", "--reinstall", "-y", package_name])
-        .output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("apt-get reinstall failed: {}", err)
-    }
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?)
 }
 
-pub fn update_repos() -> Result<()> {
-    let output = Command::new("apt-get")
+pub fn spawn_update() -> Result<tokio::process::Child> {
+    Ok(TokioCommand::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["update"])
-        .output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("apt-get update failed: {}", err)
-    }
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?)
 }
 
-pub fn upgrade_system() -> Result<()> {
-    let output = Command::new("apt-get")
+pub fn spawn_upgrade() -> Result<tokio::process::Child> {
+    Ok(TokioCommand::new("apt-get")
         .env("DEBIAN_FRONTEND", "noninteractive")
         .args(&["dist-upgrade", "-y"])
-        .output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("apt-get dist-upgrade failed: {}", err)
-    }
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?)
 }
 
 fn parse_apt_search(output: &str) -> Vec<Package> {
